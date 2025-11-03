@@ -61,6 +61,6 @@ jobs:
         run: |
           firebase appdistribution:distribute android/app/build/outputs/apk/release/app-release.apk \
             --app 1:561028123967:android:f66ce46101160c027c178a \
-            --groups "testers"
+            --testers "navodanimidev@gmail.com"
             --token ${{ secrets.FIREBASE_TOKEN }}
 
