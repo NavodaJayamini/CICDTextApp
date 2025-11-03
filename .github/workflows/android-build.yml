@@ -62,10 +62,11 @@ jobs:
       - name: Distribute to Firebase App Distribution
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/firebase-service-account.json
-        run: |
-          firebase appdistribution:distribute android/app/build/outputs/apk/release/app-release.apk \
-            --app 1:561028123967:android:f66ce46101160c027c178a \
-            --testers "navodanimidev@gmail.com"
+        run: firebase appdistribution:distribute \
+              android/app/build/outputs/apk/release/app-release.apk \
+              --app 1:561028123967:android:f66ce46101160c027c178a \
+              --testers "navodanimidev@gmail.com"
+
 
 
 
