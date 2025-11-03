@@ -49,25 +49,18 @@ jobs:
       - name: Build APK (Release)
         run: |
           cd android
-          # Ensure you are using the correct signing config in your build.gradle for assembleRelease
           ./gradlew assembleRelease
           cd ..
 
       - name: Install Firebase CLI
-        # Required for the 'firebase' command in the next step
         run: npm install -g firebase-tools
 
-      # 🚨 THIS IS THE CRITICAL FIX FOR THE AUTHENTICATION ERROR 🚨
+      # Use FIREBASE_TOKEN for guaranteed authentication in CI/CD
       - name: Authenticate & Distribute to Firebase App Distribution
+        env:
+          # This variable will be automatically recognized by the Firebase CLI
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }} 
         run: |
-          # 1. Decode Firebase service account JSON into a file in the workspace
-          echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > firebase-service-account.json
-          
-          # 2. EXPORT the GOOGLE_APPLICATION_CREDENTIALS env var
-          # This variable tells the Firebase CLI to use this file for authentication (Service Account)
-          export GOOGLE_APPLICATION_CREDENTIALS="$(pwd)/firebase-service-account.json"
-          
-          # 3. Execute the distribution command, which will now be authenticated
           echo "Starting distribution to Firebase App Distribution..."
           firebase appdistribution:distribute \
             android/app/build/outputs/apk/release/app-release.apk \
