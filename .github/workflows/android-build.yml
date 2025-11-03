@@ -64,7 +64,10 @@ jobs:
       - name: Upload to Firebase App Distribution
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-        run: |
+        run: 
+        # Wait a bit to ensure Firebase has processed the uploaded build
+          sleep 10
+          |
           firebase appdistribution:distribute android/app/build/outputs/apk/release/app-release.apk \
             --app 1:561028123967:android:f66ce46101160c027c178a \
             --groups "testers"
