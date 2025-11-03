@@ -38,6 +38,11 @@ jobs:
           api-level: 33
           build-tools: 33.0.2
 
+      - name: Run Unit Tests
+        run: |
+          cd android
+          ./gradlew testDebugUnitTest
+
       - name: Decode keystore (for signing)
         run: |
           mkdir -p android/app
