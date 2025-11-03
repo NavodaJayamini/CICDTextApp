@@ -28,6 +28,9 @@ jobs:
           distribution: 'temurin'
           java-version: 17
 
+      - name: Make Gradle wrapper executable
+        run: chmod +x android/gradlew
+        
       - name: Build Release APK
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
