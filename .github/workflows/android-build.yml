@@ -29,6 +29,10 @@ jobs:
         with:
           node-version: 20
 
+      # keep this higher
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
+
       - name: Install dependencies
         run: npm ci
 
@@ -47,9 +51,6 @@ jobs:
         run: |
           mkdir -p android/app
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/my-release-key.keystore
-
-      - name: Make gradlew executable
-        run: chmod +x android/gradlew
 
       - name: Build APK (Release)
         run: |
