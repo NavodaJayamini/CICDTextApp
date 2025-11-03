@@ -64,6 +64,7 @@ jobs:
       - name: Upload to Firebase App Distribution
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          
         run: |
           firebase appdistribution:distribute android/app/build/outputs/apk/release/app-release.apk \
             --app 1:561028123967:android:f66ce46101160c027c178a \
