@@ -38,7 +38,7 @@ jobs:
           api-level: 33
           build-tools: 33.0.2
 
-      - name: Decode keystore
+      - name: Decode keystore (for signing)
         run: |
           mkdir -p android/app
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/my-release-key.keystore
@@ -46,32 +46,30 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x android/gradlew
 
-      - name: Build APK
+      - name: Build APK (Release)
         run: |
           cd android
+          # Ensure you are using the correct signing config in your build.gradle for assembleRelease
           ./gradlew assembleRelease
           cd ..
 
-      - name: Decode Firebase service account
-        run: |
-          echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > firebase-service-account.json
-
       - name: Install Firebase CLI
+        # Required for the 'firebase' command in the next step
         run: npm install -g firebase-tools
 
-      - name: Distribute to Firebase App Distribution
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/firebase-service-account.json
+      # 🚨 THIS IS THE CRITICAL FIX FOR THE AUTHENTICATION ERROR 🚨
+      - name: Authenticate & Distribute to Firebase App Distribution
         run: |
+          # 1. Decode Firebase service account JSON into a file in the workspace
+          echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > firebase-service-account.json
+          
+          # 2. EXPORT the GOOGLE_APPLICATION_CREDENTIALS env var
+          # This variable tells the Firebase CLI to use this file for authentication (Service Account)
+          export GOOGLE_APPLICATION_CREDENTIALS="$(pwd)/firebase-service-account.json"
+          
+          # 3. Execute the distribution command, which will now be authenticated
+          echo "Starting distribution to Firebase App Distribution..."
           firebase appdistribution:distribute \
             android/app/build/outputs/apk/release/app-release.apk \
             --app 1:561028123967:android:f66ce46101160c027c178a \
             --testers "navodanimidev@gmail.com"
-
-
-
-
-
-
-
-
