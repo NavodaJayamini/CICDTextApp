@@ -87,10 +87,8 @@ jobs:
     
       - name: Send Slack Notification
         if: always()
-        # Use the latest major version tag for stability
         uses: slackapi/slack-github-action@v1 
         env:
-          # Pass the webhook URL as an environment variable (best practice for this action)
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} 
         with:
           payload: |
@@ -112,7 +110,6 @@ jobs:
                   "fields": [
                     {
                       "type": "mrkdwn",
-                      # Ensure this variable is set from your 'Extract App Version' step
                       "text": "*Version Name:*\n*${{ steps.get_version.outputs.APP_VERSION }}*" 
                     },
                     {
