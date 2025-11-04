@@ -58,6 +58,18 @@ jobs:
           ./gradlew assembleRelease
           cd ..
 
+      - name: Extract App Version
+        id: get_version # Assign an ID to reference this step's output later
+        run: |
+          # 1. Use aapt (Android Asset Packaging Tool) to dump the manifest data from the APK
+          # The versionName is often in a line like: "A: android:versionName(0x0101021c)="...""
+          VERSION_NAME=$(aapt dump badging android/app/build/outputs/apk/release/app-release.apk | grep versionName | sed "s/.*versionName='//;s/'.*//")
+          
+          # 2. Set the extracted version as a step output, making it available to later steps
+          echo "APP_VERSION=$VERSION_NAME" >> "$GITHUB_OUTPUT"
+          
+          echo "Extracted Version: $VERSION_NAME"
+
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
 
@@ -72,3 +84,40 @@ jobs:
             android/app/build/outputs/apk/release/app-release.apk \
             --app 1:561028123967:android:f66ce46101160c027c178a \
             --testers "navodanimidev@gmail.com"
+
+      - name: Send Slack Notification
+        if: always() # Sends the notification even if distribution fails
+        uses: slackapi/slack-github-action@v1.26.0
+        with:
+          # Use your secret (defined in pre-requisite)
+          slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          # Use the Block Kit payload for a rich, formatted message
+          payload: |
+            {
+              "text": "🎉 *Android CI/CD Pipeline Complete*",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Status:* ${{ job.status }}\n*Repository:* <${{ github.server_url }}/${{ github.repository }}|${{ github.repository }}>\n*Event:* ${{ github.event_name }} by ${{ github.actor }}"
+                  }
+                },
+                {
+                  "type": "divider"
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Version Name:*\n*${{ steps.get_version.outputs.APP_VERSION }}*"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Workflow Run:*\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|#${{ github.run_number }}>"
+                    }
+                  ]
+                }
+              ]
+            }
