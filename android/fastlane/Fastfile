@@ -1,0 +1,29 @@
+# fastlane/Fastfile (Located in your android/ directory)
+
+# This sets the default platform for your lanes
+default_platform(:android)
+
+platform :android do
+  # Define the core lane for building and distributing the beta app
+  lane :beta do
+
+    # 1. Run Tests (Executes ./gradlew testDebugUnitTest)
+    gradle(task: "testDebugUnitTest")
+
+    # 2. Build Release APK (Executes ./gradlew assembleRelease)
+    # The signing config must be set up in your build.gradle to use the keystore file decoded in CI.
+    gradle(task: "assembleRelease")
+
+    # 3. Use the Firebase App Distribution action for distribution
+    # Note: The path is relative to the directory where the Fastfile is run (android/)
+    firebase_app_distribution(
+      app: "1:561028123967:android:f66ce46101160c027c178a", # Your App ID
+      apk_path: "app/build/outputs/apk/release/app-release.apk",
+      testers: "navodanimidev@gmail.com",
+      
+      # Authenticates using the FIREBASE_TOKEN environment variable from GitHub Secrets
+      firebase_cli_token: ENV["FIREBASE_TOKEN"] 
+    )
+    
+  end
+end
