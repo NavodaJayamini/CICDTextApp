@@ -84,14 +84,13 @@ jobs:
             android/app/build/outputs/apk/release/app-release.apk \
             --app 1:561028123967:android:f66ce46101160c027c178a \
             --testers "navodanimidev@gmail.com"
-
+    
       - name: Send Slack Notification
-        if: always() # Sends the notification even if distribution fails
+        if: always()
         uses: slackapi/slack-github-action@v1.26.0
         with:
-          # Use your secret (defined in pre-requisite)
-          slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
-          # Use the Block Kit payload for a rich, formatted message
+          # 🚨 CHANGE THIS LINE 🚨
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }} # Changed from slack-webhook-url
           payload: |
             {
               "text": "🎉 *Android CI/CD Pipeline Complete*",
